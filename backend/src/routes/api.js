@@ -78,7 +78,7 @@ router.get('/stats/otp', async (req, res) => {
     const OTP_MAPPING = {
       "RGB AGD ADHD#HDR": { champId: 68, champName: "Rumble" },
       "crisus22#EUW": { champId: 76, champName: "Nidalee" },
-      "zielonysrom#ZAC": { champId: 154, champName: "Zac" },
+      "RobertoCatetas#123": { champId: 154, champName: "Zac" },
       "cosspeciales1#EUW": { champId: 246, champName: "Qiyana" }
     };
     

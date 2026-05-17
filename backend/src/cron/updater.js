@@ -8,7 +8,7 @@ const PLAYERS_TO_TRACK = [
   { riotId: 'cosspeciales1', tagline: 'EUW' },
   { riotId: 'crisus22', tagline: 'EUW' },
   { riotId: 'RGB AGD ADHD', tagline: 'HDR' },
-  { riotId: 'zielonysrom', tagline: 'ZAC' }
+  { riotId: 'RobertoCatetas', tagline: '123' }
 ];
 
 async function initializePlayers() {

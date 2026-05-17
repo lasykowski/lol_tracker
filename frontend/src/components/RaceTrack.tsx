@@ -59,7 +59,7 @@ const PLAYER_COLORS = [
 
 const PLAYER_EMOJI: Record<string, string> = {
   "RGB AGD ADHD": "💀",
-  "zielonysrom": "🔥",
+  "RobertoCatetas": "🔥",
   "crisus22": "🏳️‍🌈",
   "cosspeciales1": "💣",
 };

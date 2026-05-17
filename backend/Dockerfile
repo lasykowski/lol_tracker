@@ -38,4 +38,4 @@ ENV PORT=3001
 EXPOSE 3001
 
 # Run migrations and start the server
-CMD sh -c "npx prisma migrate deploy && node src/server.js"
+CMD sh -c "npx prisma db push --accept-data-loss && node src/server.js"

@@ -80,21 +80,21 @@ router.get('/stats/otp', async (req, res) => {
       "crisus22#EUW": { champId: 76, champName: "Nidalee" },
       "RobertoCatetas#123": { champId: 154, champName: "Zac" },
       "cosspeciales1#EUW": { champId: 246, champName: "Qiyana" },
-      "Paul Kellerman#scyla": { champId: 81, champName: "Ezreal" },
-      "Mateusz Gotówa#cash": { champId: 141, champName: "Kayn" }
+      "Mateusz Gotówa#cash": { champId: 81, champName: "Ezreal" },
+      "Paul Kellerman#scyla": { champId: 141, champName: "Kayn" }
     };
-    
+
     const players = await prisma.player.findMany();
     const results = [];
 
     for (const player of players) {
       const riotIdTag = `${player.riotId}#${player.tagline}`;
       const otpInfo = OTP_MAPPING[riotIdTag];
-      
+
       if (!otpInfo) continue;
 
       const matches = await prisma.matchHistory.findMany({
-        where: { 
+        where: {
           playerId: player.id,
           championId: otpInfo.champId
         }
@@ -188,8 +188,8 @@ router.get('/players/race-track', async (req, res) => {
 // Helper function to calculate absolute LP
 function getAbsoluteLp(tier, rank, lp) {
   const tiers = {
-    'IRON': 0, 'BRONZE': 400, 'SILVER': 800, 'GOLD': 1200, 
-    'PLATINUM': 1600, 'EMERALD': 2000, 'DIAMOND': 2400, 
+    'IRON': 0, 'BRONZE': 400, 'SILVER': 800, 'GOLD': 1200,
+    'PLATINUM': 1600, 'EMERALD': 2000, 'DIAMOND': 2400,
     'MASTER': 2800, 'GRANDMASTER': 2800, 'CHALLENGER': 2800,
     'UNRANKED': 0
   };
@@ -233,7 +233,7 @@ router.get('/players/history-all', async (req, res) => {
     }
 
     const sortedDates = Array.from(allDates).sort();
-    
+
     const chartData = sortedDates.map(dateStr => {
       const point = { date: dateStr };
       players.forEach(p => {

@@ -32,7 +32,7 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="min-h-screen p-8 md:p-12 lg:p-20 max-w-[1400px] mx-auto relative">
+    <main className="min-h-screen p-4 md:p-8 lg:p-12 w-[95%] lg:w-[90%] 2xl:w-[65%] mx-auto relative overflow-hidden">
       <header className="mb-16 flex flex-col md:flex-row md:items-end justify-between gap-6 relative z-10">
         <div>
           <h1 className="text-6xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 mb-4 flex items-center gap-5 drop-shadow-[0_0_25px_rgba(56,189,248,0.5)]">
@@ -128,6 +128,24 @@ export default function Home() {
             <div className="absolute inset-0 ring-1 ring-inset ring-white/20 rounded-3xl pointer-events-none z-30"></div>
           </div>
 
+          {/* Krzys Rafal Panel */}
+          <div className="glass-panel rounded-3xl relative overflow-hidden group shadow-2xl h-[300px]">
+            <div className="absolute top-0 left-0 w-48 h-48 bg-rose-500/20 rounded-full blur-3xl group-hover:bg-rose-500/40 transition-colors duration-700 z-10 pointer-events-none"></div>
+            
+            <div className="absolute top-0 inset-x-0 p-6 bg-gradient-to-b from-slate-900/90 via-slate-900/60 to-transparent z-20 pointer-events-none">
+              <h3 className="text-xl font-black text-white uppercase tracking-widest flex items-center gap-3 drop-shadow-md">
+                <span className="w-2 h-6 bg-rose-500 rounded-full shadow-[0_0_15px_rgba(244,63,94,0.8)]"></span>
+                Krzyś Rafał
+              </h3>
+            </div>
+            
+            <img 
+              src="/krzys_rafal.png" 
+              alt="Krzyś Rafał" 
+              className="absolute inset-0 w-full h-full object-cover object-top transform transition-transform duration-700 group-hover:scale-105 z-0"
+            />
+            <div className="absolute inset-0 ring-1 ring-inset ring-white/20 rounded-3xl pointer-events-none z-30"></div>
+          </div>
 
         </div>
       </div>

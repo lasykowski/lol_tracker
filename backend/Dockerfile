@@ -3,13 +3,13 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy dependency files
+# Install ALL deps (including devDeps so Prisma CLI is available for generate + db push)
 COPY package.json package-lock.json ./
-RUN npm ci --omit=dev
+RUN npm ci
 
 # Copy Prisma schema and generate client
 COPY prisma ./prisma
-RUN npx prisma generate
+RUN node node_modules/prisma/build/index.js generate
 
 # Copy the rest of the source code
 COPY . .
@@ -22,7 +22,7 @@ WORKDIR /app
 # Install openssl (required by Prisma on Alpine)
 RUN apk add --no-cache openssl
 
-# Copy built artifacts from builder
+# Copy built artifacts from builder (includes prisma CLI via devDeps)
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/src ./src
@@ -37,5 +37,5 @@ ENV PORT=3001
 
 EXPOSE 3001
 
-# Run migrations and start the server
-CMD sh -c "npx prisma db push --accept-data-loss && node src/server.js"
+# Use direct node call to Prisma CLI (no npx download needed) then start server
+CMD sh -c "node node_modules/prisma/build/index.js db push --accept-data-loss && node src/server.js"

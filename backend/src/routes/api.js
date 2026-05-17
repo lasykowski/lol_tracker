@@ -1,5 +1,6 @@
 const express = require('express');
 const { PrismaClient } = require('@prisma/client');
+const riotService = require('../services/riotService');
 const router = express.Router();
 
 const prisma = new PrismaClient();
@@ -157,7 +158,8 @@ router.get('/players/race-track', async (req, res) => {
         losses: snap?.losses || 0,
         recentChampions: (p.matches || []).map(m => ({
           championName: m.championName,
-          win: m.win
+          win: m.win,
+          matchId: m.matchId
         }))
       };
     });
@@ -248,6 +250,18 @@ router.get('/players/history-all', async (req, res) => {
     res.json(chartData);
   } catch (error) {
     console.error('Error fetching all history:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// GET /api/match/:matchId - fetch full match details with caching
+router.get('/match/:matchId', async (req, res) => {
+  try {
+    const matchId = req.params.matchId;
+    const matchData = await riotService.getMatchDetail(matchId);
+    res.json(matchData);
+  } catch (error) {
+    console.error(`Error fetching match ${req.params.matchId}:`, error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

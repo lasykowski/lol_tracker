@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import MatchScoreboard from "./MatchScoreboard";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 // Absolute LP scale: Iron IV = 0, each tier = 400, each division = 100
@@ -141,6 +142,22 @@ export default function RaceTrack() {
   const [players, setPlayers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [ddVersion, setDdVersion] = useState("14.24.1"); // fallback
+  const [hoveredMatchKey, setHoveredMatchKey] = useState<string | null>(null);
+  const hoverTimeout = useRef<NodeJS.Timeout | null>(null);
+
+  const handleMouseEnter = (matchId: string, playerIdx: number) => {
+    if (hoverTimeout.current) clearTimeout(hoverTimeout.current);
+    hoverTimeout.current = setTimeout(() => {
+      setHoveredMatchKey(`${matchId}-${playerIdx}`);
+    }, 500); // 500ms delay as requested
+  };
+
+  const handleMouseLeave = () => {
+    if (hoverTimeout.current) clearTimeout(hoverTimeout.current);
+    hoverTimeout.current = setTimeout(() => {
+      setHoveredMatchKey(null);
+    }, 150); // slight delay before closing to allow moving mouse into tooltip if needed
+  };
 
   // Fetch latest DDragon version once
   useEffect(() => {
@@ -164,9 +181,11 @@ export default function RaceTrack() {
   }, []);
 
   return (
-    <div className="glass-panel rounded-3xl p-6 lg:p-8 relative overflow-hidden">
+    <div className="glass-panel rounded-3xl p-6 lg:p-8 relative z-50">
       {/* Glow */}
-      <div className="absolute -top-20 -right-20 w-72 h-72 bg-indigo-600/10 rounded-full blur-[80px] pointer-events-none" />
+      <div className="absolute inset-0 overflow-hidden rounded-3xl pointer-events-none">
+        <div className="absolute -top-20 -right-20 w-72 h-72 bg-indigo-600/10 rounded-full blur-[80px]" />
+      </div>
 
       {/* Header */}
       <div className="flex items-center gap-3 mb-8">
@@ -234,7 +253,7 @@ export default function RaceTrack() {
                 : 0;
 
               return (
-                <div key={player.id} className="space-y-2">
+                <div key={player.id} className={`space-y-2 relative ${hoveredMatchKey?.endsWith('-' + idx) ? 'z-[99]' : 'z-10'}`}>
                   {/* Name + bar */}
                   <div className="flex items-center gap-3">
                     {/* Avatar dot */}
@@ -308,13 +327,16 @@ export default function RaceTrack() {
                           <div
                             key={i}
                             title={`${c.championName} – ${c.win ? "Wygrana" : "Przegrana"}`}
-                            className="relative w-8 h-8 rounded-lg overflow-hidden flex-shrink-0 transition-transform duration-150 hover:scale-110 hover:z-10"
+                            className="relative w-8 h-8 rounded-lg flex-shrink-0 transition-transform duration-150 hover:scale-110"
                             style={{
                               border: `2px solid ${c.win ? "rgba(52,211,153,0.8)" : "rgba(239,68,68,0.5)"}`,
                               boxShadow: c.win
                                 ? "0 0 6px rgba(52,211,153,0.4)"
                                 : "0 0 4px rgba(239,68,68,0.3)",
+                              zIndex: hoveredMatchKey === `${c.matchId}-${idx}` ? 100 : 1
                             }}
+                            onMouseEnter={() => handleMouseEnter(c.matchId, idx)}
+                            onMouseLeave={handleMouseLeave}
                           >
                             <img
                               src={champIconUrl(c.championName, ddVersion)}
@@ -331,9 +353,20 @@ export default function RaceTrack() {
                             />
                             {/* W/L stripe */}
                             <div
-                              className="absolute bottom-0 inset-x-0 h-[3px]"
+                              className="absolute bottom-0 inset-x-0 h-[3px] rounded-b-sm"
                               style={{ backgroundColor: c.win ? "#34d399" : "#ef4444" }}
                             />
+
+                            {/* Hover Scoreboard Tooltip */}
+                            {hoveredMatchKey === `${c.matchId}-${idx}` && c.matchId && (
+                              <div 
+                                className="absolute top-10 left-1/2 -translate-x-1/2 z-[999]"
+                                onMouseEnter={() => handleMouseEnter(c.matchId, idx)} // keep open if mouse enters tooltip
+                                onMouseLeave={handleMouseLeave}
+                              >
+                                <MatchScoreboard matchId={c.matchId} />
+                              </div>
+                            )}
                           </div>
                         ))}
                       </div>

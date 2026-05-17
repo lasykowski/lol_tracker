@@ -55,7 +55,7 @@ export default function Home() {
       </header>
 
       {/* RACE TRACK – full width for maximum bar accuracy */}
-      <div className="relative z-10 mb-8">
+      <div className="relative z-50 mb-8">
         <RaceTrack />
       </div>
 

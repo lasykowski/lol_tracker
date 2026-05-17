@@ -5,6 +5,8 @@ const RIOT_API_KEY = process.env.RIOT_API_KEY;
 const DEFAULT_REGION = process.env.DEFAULT_REGION || 'eun1';
 const ROUTING_REGION = process.env.ROUTING_REGION || 'europe';
 
+const matchCache = new Map();
+
 const api = axios.create({
   headers: {
     'X-Riot-Token': RIOT_API_KEY
@@ -46,7 +48,9 @@ async function getLeagueEntries(puuid) {
 
 async function getMatchIds(puuid, count = 5) {
   try {
-    const url = `https://${ROUTING_REGION}.api.riotgames.com/lol/match/v5/matches/by-puuid/${puuid}/ids?queue=420&start=0&count=${count}`;
+    const CURRENT_YEAR = new Date().getFullYear();
+    const SEASON_START_TIMESTAMP = Math.floor(new Date(`${CURRENT_YEAR}-05-15T00:00:00Z`).getTime() / 1000);
+    const url = `https://${ROUTING_REGION}.api.riotgames.com/lol/match/v5/matches/by-puuid/${puuid}/ids?queue=420&start=0&count=${count}&startTime=${SEASON_START_TIMESTAMP}`;
     const response = await api.get(url);
     return response.data;
   } catch (error) {
@@ -56,9 +60,14 @@ async function getMatchIds(puuid, count = 5) {
 }
 
 async function getMatchDetail(matchId) {
+  if (matchCache.has(matchId)) {
+    return matchCache.get(matchId);
+  }
+
   try {
     const url = `https://${ROUTING_REGION}.api.riotgames.com/lol/match/v5/matches/${matchId}`;
     const response = await api.get(url);
+    matchCache.set(matchId, response.data);
     return response.data;
   } catch (error) {
     console.error(`Error fetching match detail for ${matchId}:`, error.response?.data || error.message);

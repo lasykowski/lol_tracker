@@ -3,6 +3,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    image: wielki_challange_backend:v2
     container_name: wielki_challange_backend
     restart: unless-stopped
     environment:
@@ -24,6 +25,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+    image: wielki_challange_frontend:v2
     container_name: wielki_challange_frontend
     restart: unless-stopped
     environment:

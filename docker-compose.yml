@@ -19,12 +19,6 @@ services:
       - "3001:3001"
     networks:
       - app_network
-    healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:3001/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
 
   frontend:
     build:
@@ -34,14 +28,11 @@ services:
     restart: unless-stopped
     environment:
       NODE_ENV: "production"
-      # URL backendu widoczny z poziomu przeglądarki (publiczny adres hosta)
-      # Zmień na IP/domenę serwera jeśli frontend odpytuje backend po stronie klienta
       NEXT_PUBLIC_API_URL: "http://localhost:3001"
     ports:
       - "3000:3000"
     depends_on:
-      backend:
-        condition: service_healthy
+      - backend
     networks:
       - app_network
 

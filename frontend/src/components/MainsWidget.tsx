@@ -16,11 +16,11 @@ interface MainStat {
 
 const getChampConfig = (champName: string) => {
   switch (champName) {
-    case 'Rumble':
+    case 'Yasuo':
       return {
-        bgGlow: 'bg-red-500/20 group-hover:bg-red-500/30',
-        borderColor: 'group-hover:border-red-500/50',
-        textColor: 'text-red-400'
+        bgGlow: 'bg-blue-500/20 group-hover:bg-blue-500/30',
+        borderColor: 'group-hover:border-blue-500/50',
+        textColor: 'text-blue-400'
       };
     case 'Nidalee':
       return {

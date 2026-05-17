@@ -9,7 +9,7 @@ services:
       PORT: "3001"
       DATABASE_URL: "file:///app/data/dev.db"
       # ZMIEŃ poniższe na swój prawdziwy klucz Riot API
-      RIOT_API_KEY: "RGAPI-6f343882-66aa-4889-b9c5-24666b8a96d8"
+      RIOT_API_KEY: ${RIOT_API_KEY}
       DEFAULT_REGION: "euw1"
       ROUTING_REGION: "europe"
     volumes:
@@ -25,12 +25,12 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_API_URL: "http://130.61.32.213:3001"
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
     container_name: wielki_challange_frontend
     restart: unless-stopped
     environment:
       NODE_ENV: "production"
-      NEXT_PUBLIC_API_URL: "http://130.61.32.213:3001"
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
     ports:
       - "3000:3000"
     depends_on:

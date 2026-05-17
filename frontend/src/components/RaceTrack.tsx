@@ -55,6 +55,8 @@ const PLAYER_COLORS = [
   { gradient: "linear-gradient(90deg, rgba(14,165,233,0.9), rgba(56,189,248,0.6))", dot: "#0ea5e9" },
   { gradient: "linear-gradient(90deg, rgba(168,85,247,0.9), rgba(196,132,251,0.6))", dot: "#a855f7" },
   { gradient: "linear-gradient(90deg, rgba(16,185,129,0.9), rgba(52,211,153,0.6))", dot: "#10b981" },
+  { gradient: "linear-gradient(90deg, rgba(249,115,22,0.9), rgba(253,186,116,0.6))", dot: "#f97316" },
+  { gradient: "linear-gradient(90deg, rgba(6,182,212,0.9), rgba(103,232,249,0.6))", dot: "#06b6d4" },
 ];
 
 const PLAYER_EMOJI: Record<string, string> = {
@@ -62,6 +64,8 @@ const PLAYER_EMOJI: Record<string, string> = {
   "RobertoCatetas": "🔥",
   "crisus22": "🏳️‍🌈",
   "cosspeciales1": "💣",
+  "Paul Kellerman": "🕵️",
+  "Mateusz Gotówa": "💸",
 };
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────

@@ -46,8 +46,8 @@ export default function LPChart() {
   // We need to extract player names from the first data point keys (excluding 'date')
   const players = Object.keys(data[0] || {}).filter((k) => k !== "date");
   
-  // Custom vibrant colors for the 4 players
-  const colors = ["#0ea5e9", "#f43f5e", "#10b981", "#a855f7"];
+  // Custom vibrant colors for the 6 players
+  const colors = ["#0ea5e9", "#f43f5e", "#10b981", "#a855f7", "#f97316", "#06b6d4"];
 
   // Reverse absolute LP into Polish tier strings
   const getTierName = (absLp: number) => {

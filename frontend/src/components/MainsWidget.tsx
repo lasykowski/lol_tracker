@@ -40,6 +40,18 @@ const getChampConfig = (champName: string) => {
         borderColor: 'group-hover:border-cyan-500/50',
         textColor: 'text-cyan-400'
       };
+    case 'Ezreal':
+      return {
+        bgGlow: 'bg-yellow-500/20 group-hover:bg-yellow-500/30',
+        borderColor: 'group-hover:border-yellow-500/50',
+        textColor: 'text-yellow-400'
+      };
+    case 'Kayn':
+      return {
+        bgGlow: 'bg-rose-600/20 group-hover:bg-rose-600/30',
+        borderColor: 'group-hover:border-rose-600/50',
+        textColor: 'text-rose-500'
+      };
     default:
       return {
         bgGlow: 'bg-slate-500/20 group-hover:bg-slate-500/30',
@@ -109,7 +121,7 @@ export default function MainsWidget() {
         <h2 className="text-3xl font-black text-white uppercase tracking-widest drop-shadow-md">OTP Performance</h2>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {stats.map((stat, idx) => {
           const config = getChampConfig(stat.champName);
           

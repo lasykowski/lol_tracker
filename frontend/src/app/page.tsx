@@ -40,7 +40,7 @@ export default function Home() {
             LoL Tracker
           </h1>
           <p className="text-slate-300 text-xl ml-2 font-semibold tracking-widest uppercase">
-            Private 4-Player Leaderboard
+            Private 6-Player Leaderboard
           </p>
         </div>
         

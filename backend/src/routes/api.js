@@ -79,7 +79,9 @@ router.get('/stats/otp', async (req, res) => {
       "RGB AGD ADHD#HDR": { champId: 157, champName: "Yasuo" },
       "crisus22#EUW": { champId: 76, champName: "Nidalee" },
       "RobertoCatetas#123": { champId: 154, champName: "Zac" },
-      "cosspeciales1#EUW": { champId: 246, champName: "Qiyana" }
+      "cosspeciales1#EUW": { champId: 246, champName: "Qiyana" },
+      "Paul Kellerman#scyla": { champId: 81, champName: "Ezreal" },
+      "Mateusz Gotówa#cash": { champId: 141, champName: "Kayn" }
     };
     
     const players = await prisma.player.findMany();

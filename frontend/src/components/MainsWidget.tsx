@@ -63,7 +63,7 @@ export default function MainsWidget() {
   }, []);
 
   const fetchStats = () => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}` + "/api/stats/otp", { cache: "no-store" })
+    fetch("/api/stats/otp", { cache: "no-store" })
       .then(async (res) => {
         if (!res.ok) {
           throw new Error(`HTTP error! status: ${res.status}`);

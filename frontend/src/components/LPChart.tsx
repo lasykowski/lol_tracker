@@ -17,7 +17,7 @@ export default function LPChart() {
   const [loading, setLoading] = useState(true);
 
   const fetchChartData = () => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}` + "/api/players/history-all", { cache: "no-store" })
+    fetch("/api/players/history-all", { cache: "no-store" })
       .then((res) => res.json())
       .then((json) => {
         setData(json);

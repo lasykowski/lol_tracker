@@ -1,0 +1,54 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: wielki_challange_backend
+    restart: unless-stopped
+    environment:
+      PORT: "3001"
+      DATABASE_URL: "file:/app/data/dev.db"
+      # ZMIEŃ poniższe na swój prawdziwy klucz Riot API
+      RIOT_API_KEY: "RGAPI-6f343882-66aa-4889-b9c5-24666b8a96d8"
+      DEFAULT_REGION: "euw1"
+      ROUTING_REGION: "europe"
+    volumes:
+      # Trwałe miejsce dla bazy SQLite
+      - backend_data:/app/data
+    ports:
+      - "3001:3001"
+    networks:
+      - app_network
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: wielki_challange_frontend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: "production"
+      # URL backendu widoczny z poziomu przeglądarki (publiczny adres hosta)
+      # Zmień na IP/domenę serwera jeśli frontend odpytuje backend po stronie klienta
+      NEXT_PUBLIC_API_URL: "http://localhost:3001"
+    ports:
+      - "3000:3000"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - app_network
+
+volumes:
+  backend_data:
+    driver: local
+
+networks:
+  app_network:
+    driver: bridge

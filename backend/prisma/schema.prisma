@@ -1,0 +1,46 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Player {
+  id         Int      @id @default(autoincrement())
+  riotId     String   
+  tagline    String   
+  puuid      String   @unique
+  
+  snapshots  StatsSnapshot[]
+  matches    MatchHistory[]
+}
+
+model StatsSnapshot {
+  id        Int      @id @default(autoincrement())
+  playerId  Int
+  player    Player   @relation(fields: [playerId], references: [id])
+  tier      String?  
+  rank      String?  
+  lp        Int      @default(0)
+  wins      Int      @default(0)
+  losses    Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
+model MatchHistory {
+  id           Int      @id @default(autoincrement())
+  playerId     Int
+  player       Player   @relation(fields: [playerId], references: [id])
+  matchId      String   
+  championId   Int
+  championName String
+  kills        Int
+  deaths       Int
+  assists      Int
+  win          Boolean
+  createdAt    DateTime @default(now())
+
+  @@unique([playerId, matchId])
+}

@@ -15,7 +15,7 @@ export default function ZacWidget() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://localhost:3001/api/stats/zac")
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}` + "/api/stats/zac")
       .then((res) => res.json())
       .then((json) => {
         // Sort by KDA or Winrate (e.g. by KDA descending)

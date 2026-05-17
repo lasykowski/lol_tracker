@@ -147,7 +147,7 @@ export default function RaceTrack() {
   }, []);
 
   const fetchData = () => {
-    fetch("http://localhost:3001/api/players/race-track", { cache: "no-store" })
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}` + "/api/players/race-track", { cache: "no-store" })
       .then(r => r.json())
       .then(d => { setPlayers(Array.isArray(d) ? d : []); setLoading(false); })
       .catch(() => setLoading(false));

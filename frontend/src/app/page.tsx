@@ -12,7 +12,7 @@ export default function Home() {
 
   const fetchLeaderboard = () => {
     setLoading(true);
-    fetch("http://localhost:3001/api/leaderboard")
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}` + "/api/leaderboard")
       .then((res) => res.json())
       .then((data) => {
         setPlayers(data);

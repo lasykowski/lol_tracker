@@ -24,6 +24,8 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: "http://130.61.32.213:3001"
     container_name: wielki_challange_frontend
     restart: unless-stopped
     environment:

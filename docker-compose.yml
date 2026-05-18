@@ -9,7 +9,7 @@ services:
       PORT: "3001"
       DATABASE_URL: "file:///app/data/dev.db"
       # ZMIEŃ poniższe na swój prawdziwy klucz Riot API
-      RIOT_API_KEY: "RGAPI-2a523eaa-2299-4dc8-9668-a7a3c0782ca6"
+      RIOT_API_KEY: ${RIOT_API_KEY}
       DEFAULT_REGION: "euw1"
       ROUTING_REGION: "europe"
     volumes:

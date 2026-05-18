@@ -138,7 +138,7 @@ export default function MainsWidget() {
                   />
                 </div>
                 <div>
-                  <h3 className="text-xl font-black text-white tracking-wide truncate max-w-[150px]">{stat.riotId}</h3>
+                  <h3 className="text-xl font-black text-white tracking-wide">{stat.riotId}</h3>
                   <div className={`text-sm font-bold uppercase tracking-widest ${config.textColor}`}>
                     {stat.champName} OTP
                   </div>

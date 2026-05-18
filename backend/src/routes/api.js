@@ -159,7 +159,9 @@ router.get('/players/race-track', async (req, res) => {
         recentChampions: (p.matches || []).map(m => ({
           championName: m.championName,
           win: m.win,
-          matchId: m.matchId
+          matchId: m.matchId,
+          lpChange: m.lpChange ?? null,
+          remake: m.remake ?? false
         }))
       };
     });
@@ -217,31 +219,32 @@ router.get('/players/history-all', async (req, res) => {
     });
 
     const now = Date.now();
-    const sevenDaysAgo = new Date(now - 7 * 24 * 60 * 60 * 1000);
+    // Start exactly on May 18th, 2026 at midnight
+    const startDate = new Date("2026-05-18T00:00:00").getTime();
 
-    const allDates = new Set();
-    players.forEach(p => {
-      p.snapshots.forEach(s => {
-        const d = new Date(s.createdAt);
-        if (d >= sevenDaysAgo) {
-          allDates.add(d.toISOString());
-        }
-      });
-    });
-
-    // If no data in the last 7 days, fallback to empty or handle it safely
-    if (allDates.size === 0) {
-      return res.json([]);
+    // 2-hour intervals
+    const intervalMs = 2 * 60 * 60 * 1000; 
+    const sortedDates = [];
+    for (let t = startDate; t <= now; t += intervalMs) {
+      sortedDates.push(new Date(t).toISOString());
     }
-
-    const sortedDates = Array.from(allDates).sort();
 
     const chartData = sortedDates.map(dateStr => {
       const point = { date: dateStr };
+      const targetTime = new Date(dateStr).getTime();
+      
       players.forEach(p => {
-        // Find the last snapshot exactly at or before this date
-        const validSnapshots = p.snapshots.filter(s => new Date(s.createdAt) <= new Date(dateStr));
-        const lastValid = validSnapshots.length > 0 ? validSnapshots[validSnapshots.length - 1] : null;
+        // Find the last snapshot exactly at or before this interval
+        // Linear scan is okay because snapshots are sorted by createdAt
+        let lastValid = null;
+        for (let i = 0; i < p.snapshots.length; i++) {
+          const snapTime = new Date(p.snapshots[i].createdAt).getTime();
+          if (snapTime <= targetTime) {
+            lastValid = p.snapshots[i];
+          } else {
+            break; // Since p.snapshots is sorted asc, we can stop early
+          }
+        }
         point[p.riotId] = lastValid ? getAbsoluteLp(lastValid.tier, lastValid.rank, lastValid.lp) : null;
       });
       return point;

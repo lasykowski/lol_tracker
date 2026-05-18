@@ -40,6 +40,8 @@ model MatchHistory {
   deaths       Int
   assists      Int
   win          Boolean
+  lpChange     Int?     
+  remake       Boolean  @default(false)
   createdAt    DateTime @default(now())
 
   @@unique([playerId, matchId])

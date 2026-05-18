@@ -13,6 +13,23 @@ const PLAYERS_TO_TRACK = [
   { riotId: 'Mateusz Gotówa', tagline: 'cash' }
 ];
 
+function getAbsoluteLp(tier, rank, lp) {
+  const tiers = {
+    'IRON': 0, 'BRONZE': 400, 'SILVER': 800, 'GOLD': 1200,
+    'PLATINUM': 1600, 'EMERALD': 2000, 'DIAMOND': 2400,
+    'MASTER': 2800, 'GRANDMASTER': 2800, 'CHALLENGER': 2800,
+    'UNRANKED': 0
+  };
+  const ranks = { 'IV': 0, 'III': 100, 'II': 200, 'I': 300, '': 0 };
+
+  const base = tiers[tier] || 0;
+  if (['MASTER', 'GRANDMASTER', 'CHALLENGER'].includes(tier)) {
+    return base + lp;
+  }
+  const r = ranks[rank] || 0;
+  return base + r + lp;
+}
+
 async function initializePlayers() {
   console.log('Initializing players...');
   for (const p of PLAYERS_TO_TRACK) {
@@ -111,6 +128,16 @@ async function updatePlayerStats() {
           const participant = detail.info.participants.find(p => p.puuid === player.puuid);
           
           if (participant) {
+            // gameEndedInEarlySurrender = remake (all participants surrendered before 3 min)
+            const isRemake = participant.gameEndedInEarlySurrender === true;
+            // Calculate lpChange
+            let lpChange = null;
+            if (lastSnapshot && lastSnapshot.tier !== 'UNRANKED' && currentTier !== 'UNRANKED') {
+              const prevAbsolute = getAbsoluteLp(lastSnapshot.tier, lastSnapshot.rank, lastSnapshot.lp);
+              const currAbsolute = getAbsoluteLp(currentTier, currentRank, currentLp);
+              lpChange = currAbsolute - prevAbsolute;
+            }
+
             await prisma.matchHistory.create({
               data: {
                 playerId: player.id,
@@ -120,7 +147,9 @@ async function updatePlayerStats() {
                 kills: participant.kills,
                 deaths: participant.deaths,
                 assists: participant.assists,
-                win: participant.win
+                win: participant.win,
+                lpChange: lpChange,
+                remake: isRemake
               }
             });
             console.log(`Inserted match ${matchId} for ${player.riotId}`);

@@ -10,6 +10,8 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
     background-image: radial-gradient(circle at 50% -20%, #1e293b, #0f172a);
+    background-attachment: fixed;
+    background-repeat: no-repeat;
     min-height: 100vh;
   }
 }

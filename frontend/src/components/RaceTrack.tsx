@@ -51,14 +51,14 @@ const MILESTONES = [
   { label: "MA", absLp: 2800, color: "#a855f7", major: true },
 ];
 
-const PLAYER_COLORS = [
-  { gradient: "linear-gradient(90deg, rgba(244,63,94,0.9), rgba(251,113,133,0.6))", dot: "#f43f5e" },
-  { gradient: "linear-gradient(90deg, rgba(14,165,233,0.9), rgba(56,189,248,0.6))", dot: "#0ea5e9" },
-  { gradient: "linear-gradient(90deg, rgba(168,85,247,0.9), rgba(196,132,251,0.6))", dot: "#a855f7" },
-  { gradient: "linear-gradient(90deg, rgba(16,185,129,0.9), rgba(52,211,153,0.6))", dot: "#10b981" },
-  { gradient: "linear-gradient(90deg, rgba(249,115,22,0.9), rgba(253,186,116,0.6))", dot: "#f97316" },
-  { gradient: "linear-gradient(90deg, rgba(6,182,212,0.9), rgba(103,232,249,0.6))", dot: "#06b6d4" },
-];
+const PLAYER_COLORS: Record<string, { gradient: string, dot: string }> = {
+  "RGB AGD ADHD": { gradient: "linear-gradient(90deg, rgba(244,63,94,0.9), rgba(251,113,133,0.6))", dot: "#f43f5e" },
+  "RobertoCatetas": { gradient: "linear-gradient(90deg, rgba(14,165,233,0.9), rgba(56,189,248,0.6))", dot: "#0ea5e9" },
+  "crisus22": { gradient: "linear-gradient(90deg, rgba(168,85,247,0.9), rgba(196,132,251,0.6))", dot: "#a855f7" },
+  "cosspeciales1": { gradient: "linear-gradient(90deg, rgba(16,185,129,0.9), rgba(52,211,153,0.6))", dot: "#10b981" },
+  "Paul Kellerman": { gradient: "linear-gradient(90deg, rgba(249,115,22,0.9), rgba(253,186,116,0.6))", dot: "#f97316" },
+  "Mateusz Gotówa": { gradient: "linear-gradient(90deg, rgba(234,179,8,0.9), rgba(253,224,71,0.6))", dot: "#eab308" },
+};
 
 const PLAYER_EMOJI: Record<string, string> = {
   "RGB AGD ADHD": "💀",
@@ -200,7 +200,7 @@ export default function RaceTrack() {
       ) : (
         <div>
           {/* ── Milestone bar ──────────────────────────────────────── */}
-          <div className="relative h-10 mb-1 mx-1 ml-[168px]">
+          <div className="relative h-10 mb-1 mx-1 ml-[216px]">
             {/* Track line */}
             <div className="absolute top-[6px] left-0 right-0 h-px bg-white/10" />
 
@@ -243,138 +243,224 @@ export default function RaceTrack() {
           {/* ── Tier separator lines on main track ────────────────── */}
 
           {/* ── Player rows ───────────────────────────────────────── */}
-          <div className="space-y-6 mt-6">
-            {players.map((player, idx) => {
-              const absLp = getAbsoluteLp(player.tier, player.rank, player.lp);
-              const pct = toPercent(absLp);
-              const color = PLAYER_COLORS[idx % PLAYER_COLORS.length];
-              const winRate = player.wins + player.losses > 0
-                ? Math.round(player.wins / (player.wins + player.losses) * 100)
-                : 0;
+          <div className="space-y-8 mt-6">
+            {(() => {
+              // Defined pairs
+              const pairDefinitions = [
+                ["RGB AGD ADHD", "RobertoCatetas"],
+                ["crisus22", "cosspeciales1"],
+                ["Mateusz Gotówa", "Paul Kellerman"],
+              ];
 
-              return (
-                <div key={player.id} className={`space-y-2 relative ${hoveredMatchKey?.endsWith('-' + idx) ? 'z-[99]' : 'z-10'}`}>
-                  {/* Name + bar */}
-                  <div className="flex items-center gap-3">
-                    {/* Avatar dot */}
-                    <div
-                      className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-white font-black text-sm shadow-lg border-2 border-white/20"
-                      style={{ backgroundColor: color.dot }}
-                    >
-                      {player.riotId.charAt(0).toUpperCase()}
-                    </div>
+              // Group fetched players into these pairs
+              const groupedPairs = pairDefinitions.map(pairRiotIds => {
+                const pairPlayers = pairRiotIds
+                  .map(riotId => players.find(p => p.riotId === riotId))
+                  .filter(Boolean);
+                
+                const sumLp = pairPlayers.reduce((sum, p) => sum + getAbsoluteLp(p.tier, p.rank, p.lp), 0);
+                
+                return {
+                  riotIds: pairRiotIds,
+                  players: pairPlayers,
+                  sumLp,
+                };
+              });
 
-                    {/* Name + WR */}
-                    <div className="w-28 flex-shrink-0">
-                      <div className="text-sm font-bold text-slate-200 truncate">
-                        {PLAYER_EMOJI[player.riotId] ? `${PLAYER_EMOJI[player.riotId]} ` : ""}{player.riotId}
-                      </div>
-                      <div className="text-[10px] text-slate-500">
-                        {player.wins}W {player.losses}L · {winRate}%
-                      </div>
-                    </div>
+              // Sort pairs by sum of LP
+              groupedPairs.sort((a, b) => b.sumLp - a.sumLp);
 
-                    {/* Track */}
-                    <div className="relative flex-1 h-10 bg-slate-900/70 rounded-xl border border-white/5 overflow-hidden">
-                      {/* Tier separator lines */}
-                      {MILESTONES.map(m => (
-                        <div
-                          key={m.absLp}
-                          className="absolute top-0 bottom-0 w-px"
-                          style={{
-                            left: `${toPercent(m.absLp)}%`,
-                            backgroundColor: m.color,
-                            opacity: 0.2,
-                          }}
-                        />
-                      ))}
+              return groupedPairs.map((pair, pairIdx) => (
+                <div key={pairIdx} className="relative p-5 rounded-3xl bg-slate-800/20 border border-slate-700/50 shadow-inner space-y-6">
+                  {/* Pair connecting line on the left */}
+                  <div className="absolute left-9 top-12 bottom-12 w-px bg-slate-700/50" />
+                  
+                  {pair.players.map((player, idx) => {
+                    // Find global index for colors
+                    const globalIdx = players.findIndex(p => p.riotId === player.riotId);
+                    
+                    const absLp = getAbsoluteLp(player.tier, player.rank, player.lp);
+                    const pct = toPercent(absLp);
+                    const color = PLAYER_COLORS[player.riotId] || { gradient: "linear-gradient(90deg, rgba(255,255,255,0.2), rgba(255,255,255,0.1))", dot: "#fff" };
+                    const winRate = player.wins + player.losses > 0
+                      ? Math.round(player.wins / (player.wins + player.losses) * 100)
+                      : 0;
 
-                      {/* Filled bar */}
-                      <div
-                        className="absolute inset-y-0 left-0 rounded-xl flex items-center overflow-hidden transition-all duration-700 ease-out"
-                        style={{ width: `${pct}%`, background: color.gradient }}
-                      >
-                        {/* Shine effect */}
-                        <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent" />
-                        {/* Label – only show if bar is wide enough */}
-                        {pct > 12 && (
-                          <span className="relative ml-auto mr-3 text-white font-black text-xs tracking-wide drop-shadow whitespace-nowrap">
-                            {formatRankLabel(player.tier, player.rank, player.lp)}
-                          </span>
-                        )}
-                      </div>
-
-                      {/* If bar too small, show label outside */}
-                      {pct <= 12 && (
-                        <span
-                          className="absolute inset-y-0 flex items-center text-white font-black text-xs tracking-wide drop-shadow whitespace-nowrap ml-2"
-                          style={{ left: `${pct}%` }}
-                        >
-                          {formatRankLabel(player.tier, player.rank, player.lp)}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Champion icons – last 10 ranked matches */}
-                  {player.recentChampions?.length > 0 && (
-                    <div className="flex items-center gap-2 pl-[156px]">
-                      <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest whitespace-nowrap">
-                        Ostatnie {player.recentChampions.length}:
-                      </span>
-                      <div className="flex gap-1.5 flex-wrap">
-                        {player.recentChampions.map((c: any, i: number) => (
+                    return (
+                      <div key={player.id} className={`space-y-2 relative ${hoveredMatchKey?.endsWith('-' + globalIdx) ? 'z-[99]' : 'z-10'}`}>
+                        {/* Name + bar */}
+                        <div className="flex items-center gap-3">
+                          {/* Avatar dot */}
                           <div
-                            key={i}
-                            title={`${c.championName} – ${c.win ? "Wygrana" : "Przegrana"}`}
-                            className="relative w-8 h-8 rounded-lg flex-shrink-0 transition-transform duration-150 hover:scale-110"
-                            style={{
-                              border: `2px solid ${c.win ? "rgba(52,211,153,0.8)" : "rgba(239,68,68,0.5)"}`,
-                              boxShadow: c.win
-                                ? "0 0 6px rgba(52,211,153,0.4)"
-                                : "0 0 4px rgba(239,68,68,0.3)",
-                              zIndex: hoveredMatchKey === `${c.matchId}-${idx}` ? 100 : 1
-                            }}
-                            onMouseEnter={() => handleMouseEnter(c.matchId, idx)}
-                            onMouseLeave={handleMouseLeave}
+                            className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-white font-black text-sm shadow-lg border-2 border-white/20 z-10"
+                            style={{ backgroundColor: color.dot }}
                           >
-                            <img
-                              src={champIconUrl(c.championName, ddVersion)}
-                              alt={c.championName}
-                              className="w-full h-full object-cover"
-                              onError={(e) => {
-                                // fallback with raw name
-                                const t = e.target as HTMLImageElement;
-                                if (!t.dataset.fallback) {
-                                  t.dataset.fallback = "1";
-                                  t.src = `https://ddragon.leagueoflegends.com/cdn/${ddVersion}/img/champion/${c.championName}.png`;
-                                }
-                              }}
-                            />
-                            {/* W/L stripe */}
-                            <div
-                              className="absolute bottom-0 inset-x-0 h-[3px] rounded-b-sm"
-                              style={{ backgroundColor: c.win ? "#34d399" : "#ef4444" }}
-                            />
+                            {player.riotId.charAt(0).toUpperCase()}
+                          </div>
 
-                            {/* Hover Scoreboard Tooltip */}
-                            {hoveredMatchKey === `${c.matchId}-${idx}` && c.matchId && (
-                              <div 
-                                className="absolute top-10 left-1/2 -translate-x-1/2 z-[999]"
-                                onMouseEnter={() => handleMouseEnter(c.matchId, idx)} // keep open if mouse enters tooltip
-                                onMouseLeave={handleMouseLeave}
+                          {/* Name + WR */}
+                          <div className="w-40 flex-shrink-0">
+                            <div className="text-sm font-bold text-slate-200 truncate">
+                              {PLAYER_EMOJI[player.riotId] ? `${PLAYER_EMOJI[player.riotId]} ` : ""}{player.riotId}
+                            </div>
+                            <div className="text-[10px] text-slate-500">
+                              {player.wins}W {player.losses}L · {winRate}%
+                            </div>
+                          </div>
+
+                          {/* Track */}
+                          <div className="relative flex-1 h-10 bg-slate-900/70 rounded-xl border border-white/5 overflow-hidden">
+                            {/* Tier separator lines */}
+                            {MILESTONES.map(m => (
+                              <div
+                                key={m.absLp}
+                                className="absolute top-0 bottom-0 w-px"
+                                style={{
+                                  left: `${toPercent(m.absLp)}%`,
+                                  backgroundColor: m.color,
+                                  opacity: 0.2,
+                                }}
+                              />
+                            ))}
+
+                            {/* Filled bar */}
+                            <div
+                              className="absolute inset-y-0 left-0 rounded-xl flex items-center overflow-hidden transition-all duration-700 ease-out"
+                              style={{ width: `${pct}%`, background: color.gradient }}
+                            >
+                              {/* Shine effect */}
+                              <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent" />
+                              {/* Label – only show if bar is wide enough */}
+                              {pct > 12 && (
+                                <span className="relative ml-auto mr-3 text-white font-black text-xs tracking-wide drop-shadow whitespace-nowrap">
+                                  {formatRankLabel(player.tier, player.rank, player.lp)}
+                                </span>
+                              )}
+                            </div>
+
+                            {/* If bar too small, show label outside */}
+                            {pct <= 12 && (
+                              <span
+                                className="absolute inset-y-0 flex items-center text-white font-black text-xs tracking-wide drop-shadow whitespace-nowrap ml-2"
+                                style={{ left: `${pct}%` }}
                               >
-                                <MatchScoreboard matchId={c.matchId} />
-                              </div>
+                                {formatRankLabel(player.tier, player.rank, player.lp)}
+                              </span>
                             )}
                           </div>
-                        ))}
+                        </div>
+
+                        {/* Champion icons – last 10 ranked matches */}
+                        {player.recentChampions?.length > 0 && (
+                          <div className="flex items-center gap-2 pl-[204px]">
+                            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest whitespace-nowrap">
+                              Ostatnie {player.recentChampions.length}:
+                            </span>
+                            <div className="flex gap-1.5 flex-wrap">
+                              {player.recentChampions.map((c: any, i: number) => {
+                                const isRemake = c.remake === true;
+                                // Determine border/shadow colors
+                                const borderColor = isRemake
+                                  ? "rgba(156,163,175,0.6)"
+                                  : c.win
+                                  ? "rgba(52,211,153,0.8)"
+                                  : "rgba(239,68,68,0.5)";
+                                const boxShadow = isRemake
+                                  ? "0 0 4px rgba(156,163,175,0.3)"
+                                  : c.win
+                                  ? "0 0 6px rgba(52,211,153,0.4)"
+                                  : "0 0 4px rgba(239,68,68,0.3)";
+                                const stripeColor = isRemake ? "#9ca3af" : c.win ? "#34d399" : "#ef4444";
+
+                                // LP badge
+                                let lpLabel: string | null = null;
+                                let lpColor = "";
+                                if (c.lpChange !== null && c.lpChange !== undefined) {
+                                  if (isRemake) {
+                                    lpLabel = "±0";
+                                    lpColor = "text-slate-400";
+                                  } else if (c.lpChange > 0) {
+                                    lpLabel = `+${c.lpChange}`;
+                                    lpColor = "text-emerald-400";
+                                  } else if (c.lpChange < 0) {
+                                    lpLabel = `${c.lpChange}`;
+                                    lpColor = "text-red-400";
+                                  } else {
+                                    lpLabel = "±0";
+                                    lpColor = "text-slate-400";
+                                  }
+                                }
+
+                                const title = isRemake
+                                  ? `${c.championName} – Remake`
+                                  : `${c.championName} – ${c.win ? "Wygrana" : "Przegrana"}`;
+
+                                return (
+                                  <div
+                                    key={i}
+                                    className="flex flex-col items-center gap-0.5"
+                                  >
+                                    <div
+                                      title={title}
+                                      className="relative w-8 h-8 rounded-lg flex-shrink-0 transition-transform duration-150 hover:scale-110"
+                                      style={{
+                                        border: `2px solid ${borderColor}`,
+                                        boxShadow: boxShadow,
+                                        zIndex: hoveredMatchKey === `${c.matchId}-${globalIdx}` ? 100 : 1,
+                                        filter: isRemake ? "grayscale(0.6) brightness(0.75)" : undefined,
+                                      }}
+                                      onMouseEnter={() => handleMouseEnter(c.matchId, globalIdx)}
+                                      onMouseLeave={handleMouseLeave}
+                                    >
+                                      <img
+                                        src={champIconUrl(c.championName, ddVersion)}
+                                        alt={c.championName}
+                                        className="w-full h-full object-cover"
+                                        onError={(e) => {
+                                          // fallback with raw name
+                                          const t = e.target as HTMLImageElement;
+                                          if (!t.dataset.fallback) {
+                                            t.dataset.fallback = "1";
+                                            t.src = `https://ddragon.leagueoflegends.com/cdn/${ddVersion}/img/champion/${c.championName}.png`;
+                                          }
+                                        }}
+                                      />
+                                      {/* W/L/Remake stripe */}
+                                      <div
+                                        className="absolute bottom-0 inset-x-0 h-[3px] rounded-b-sm"
+                                        style={{ backgroundColor: stripeColor }}
+                                      />
+
+                                      {/* Hover Scoreboard Tooltip */}
+                                      {hoveredMatchKey === `${c.matchId}-${globalIdx}` && c.matchId && (
+                                        <div
+                                          className="absolute top-10 left-1/2 -translate-x-1/2 z-[999]"
+                                          onMouseEnter={() => handleMouseEnter(c.matchId, globalIdx)}
+                                          onMouseLeave={handleMouseLeave}
+                                        >
+                                          <MatchScoreboard matchId={c.matchId} />
+                                        </div>
+                                      )}
+                                    </div>
+
+                                    {/* LP change badge */}
+                                    {lpLabel && (
+                                      <span className={`text-[9px] font-black leading-none ${lpColor}`}>
+                                        {lpLabel}
+                                      </span>
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
                       </div>
-                    </div>
-                  )}
+                    );
+                  })}
                 </div>
-              );
-            })}
+              ));
+            })()}
           </div>
         </div>
       )}

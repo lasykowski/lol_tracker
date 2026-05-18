@@ -9,8 +9,10 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Legend
+  Legend,
+  ReferenceArea
 } from "recharts";
+import { TrendingUp } from "lucide-react";
 
 export default function LPChart() {
   const [data, setData] = useState<any[]>([]);
@@ -31,34 +33,65 @@ export default function LPChart() {
 
   useEffect(() => {
     fetchChartData();
-    const iv = setInterval(fetchChartData, 15_000); // refresh every 15 seconds
+    const iv = setInterval(fetchChartData, 15_000);
     return () => clearInterval(iv);
   }, []);
 
   if (loading) {
-    return <div className="h-64 flex items-center justify-center text-slate-400">Loading chart data...</div>;
+    return <div className="h-[450px] flex items-center justify-center text-slate-400">Loading chart data...</div>;
   }
 
   if (!data || data.length === 0) {
-    return <div className="h-64 flex items-center justify-center text-slate-400">No historical data available yet.</div>;
+    return <div className="h-[450px] flex items-center justify-center text-slate-400">No historical data available yet.</div>;
   }
 
-  // We need to extract player names from the first data point keys (excluding 'date')
   const players = Object.keys(data[0] || {}).filter((k) => k !== "date");
-  
-  // Custom vibrant colors for the 6 players
-  const colors = ["#0ea5e9", "#f43f5e", "#10b981", "#a855f7", "#f97316", "#06b6d4"];
+  const colors: Record<string, string> = {
+    "RGB AGD ADHD": "#f43f5e",
+    "RobertoCatetas": "#0ea5e9",
+    "crisus22": "#a855f7",
+    "cosspeciales1": "#10b981",
+    "Paul Kellerman": "#f97316",
+    "Mateusz Gotówa": "#eab308"
+  };
 
-  // Reverse absolute LP into Polish tier strings
-  const getTierName = (absLp: number) => {
-    if (absLp >= 2800) return `Master+ ${absLp - 2800} LP`;
+  // Calculate Peak LP and Min/Max LP
+  let peakLp = 0;
+  let minLp = Infinity;
+  let maxLp = -Infinity;
+  
+  data.forEach((point) => {
+    players.forEach((p) => {
+      const val = point[p];
+      if (val > peakLp) peakLp = val;
+      if (val < minLp) minLp = val;
+      if (val > maxLp) maxLp = val;
+    });
+  });
+  if (minLp === Infinity) minLp = 0;
+
+  const getZoneName = (absLp: number) => {
+    if (absLp >= 3600) return 'Challenger';
+    if (absLp >= 3200) return 'Grandmaster';
+    if (absLp >= 2800) return 'Master';
     const tiers = ['Żelazo', 'Brąz', 'Srebro', 'Złoto', 'Platyna', 'Szmaragd', 'Diament'];
     const ranks = ['IV', 'III', 'II', 'I'];
     const tierIdx = Math.floor(absLp / 400);
     const rem = absLp % 400;
     const rankIdx = Math.floor(rem / 100);
-    const lp = rem % 100;
-    return `${tiers[tierIdx]} ${ranks[rankIdx]} ${lp} LP`;
+    const tierName = tiers[tierIdx] || '';
+    const rankName = ranks[rankIdx] || '';
+    return tierName ? `${tierName} ${rankName}` : '';
+  };
+
+  const getShortTierName = (absLp: number) => {
+    if (absLp >= 2800) return `M`;
+    const tiers = ['I', 'B', 'S', 'G', 'P', 'E', 'D'];
+    const ranks = ['4', '3', '2', '1'];
+    const tierIdx = Math.floor(absLp / 400);
+    const rem = absLp % 400;
+    const rankIdx = Math.floor(rem / 100);
+    return `${tiers[tierIdx] || '?'}${ranks[rankIdx]}`;
   };
 
   const CustomTooltip = ({ active, payload, label }: any) => {
@@ -67,14 +100,16 @@ export default function LPChart() {
       const formattedDate = `${d.getDate().toString().padStart(2, '0')}.${(d.getMonth()+1).toString().padStart(2, '0')} ${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
       
       return (
-        <div className="glass-panel p-4 rounded-xl border border-white/10 shadow-2xl backdrop-blur-xl">
+        <div className="glass-panel p-4 rounded-xl border border-white/10 shadow-2xl backdrop-blur-xl min-w-[200px]">
           <p className="mb-3 font-semibold text-slate-400 text-xs tracking-wider uppercase">{formattedDate}</p>
           <div className="flex flex-col gap-2">
             {payload.map((entry: any, index: number) => (
               <div key={index} className="flex items-center gap-2 text-sm font-bold">
                 <div className="w-2.5 h-2.5 rounded-full shadow-sm" style={{ backgroundColor: entry.color, boxShadow: `0 0 8px ${entry.color}` }}></div>
                 <span className="text-slate-200">{entry.name}:</span>
-                <span style={{ color: entry.color }}>{getTierName(entry.value)}</span>
+                <span style={{ color: entry.color }}>
+                  {getZoneName(entry.value)} {entry.value >= 2800 ? entry.value - 2800 : entry.value % 100} LP
+                </span>
               </div>
             ))}
           </div>
@@ -83,6 +118,21 @@ export default function LPChart() {
     }
     return null;
   };
+
+  // Dynamic Background Bands (strefy)
+  // Determine which tiers are visible based on minLp and maxLp
+  const startTier = Math.max(0, Math.floor(minLp / 400));
+  const endTier = Math.floor(maxLp / 400);
+  const backgroundTiers = [];
+  const tierColors = ['#434141', '#85513d', '#7d8a95', '#bea360', '#3b8686', '#2b9668', '#4b55c2', '#a855f7'];
+
+  for (let t = startTier; t <= endTier; t++) {
+    backgroundTiers.push({
+      y1: t * 400,
+      y2: (t + 1) * 400,
+      color: tierColors[Math.min(t, tierColors.length - 1)],
+    });
+  }
 
   return (
     <div className="glass-panel rounded-3xl p-6 lg:p-8 mt-8 relative overflow-hidden group">
@@ -93,9 +143,9 @@ export default function LPChart() {
         <div>
           <h3 className="text-2xl lg:text-3xl font-black text-white flex items-center gap-3 tracking-tight">
             <div className="w-2 h-8 bg-gradient-to-b from-cyan-400 to-blue-600 rounded-full shadow-[0_0_15px_rgba(6,182,212,0.8)]"></div>
-            LP w czasie (Ostatnie 7 dni)
+            LP w czasie (Ostatnie 30 dni)
           </h3>
-          <p className="text-slate-400 mt-2 font-medium text-sm lg:text-base">Wykres na żywo pokazujący przeskoki rangi w prawdziwym czasie.</p>
+          <p className="text-slate-400 mt-2 font-medium text-sm lg:text-base">Wykres postępu punktów ligowych graczy.</p>
         </div>
       </div>
 
@@ -103,13 +153,25 @@ export default function LPChart() {
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 10 }}>
             <defs>
-              {players.map((player, idx) => (
-                <linearGradient key={`grad-${player}`} id={`color-${idx}`} x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor={colors[idx % colors.length]} stopOpacity={0.3}/>
-                  <stop offset="95%" stopColor={colors[idx % colors.length]} stopOpacity={0.0}/>
+              {players.map((player) => (
+                <linearGradient key={`grad-${player}`} id={`color-${player.replace(/\s+/g, '-')}`} x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor={colors[player] || "#fff"} stopOpacity={0.3}/>
+                  <stop offset="95%" stopColor={colors[player] || "#fff"} stopOpacity={0.0}/>
                 </linearGradient>
               ))}
             </defs>
+
+            {/* Dynamic rank background bands */}
+            {backgroundTiers.map((tier, idx) => (
+              <ReferenceArea 
+                key={`bg-${idx}`}
+                y1={tier.y1} 
+                y2={tier.y2} 
+                fill={tier.color} 
+                fillOpacity={0.08} 
+              />
+            ))}
+
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" vertical={false} />
             <XAxis 
               dataKey="date" 
@@ -129,8 +191,8 @@ export default function LPChart() {
               domain={['auto', 'auto']}
               axisLine={false}
               tickLine={false}
-              tickFormatter={(val) => getTierName(val).replace(' LP', '')}
-              width={110}
+              tickFormatter={(val) => getZoneName(val)}
+              width={100}
             />
             <Tooltip content={<CustomTooltip />} cursor={{ stroke: 'rgba(255,255,255,0.1)', strokeWidth: 2, strokeDasharray: '5 5' }} />
             <Legend 
@@ -138,16 +200,16 @@ export default function LPChart() {
               iconType="circle" 
             />
             
-            {players.map((player, idx) => (
+            {players.map((player) => (
               <Area 
                 key={player}
-                type="stepAfter" 
+                type="monotone" 
                 dataKey={player} 
-                stroke={colors[idx % colors.length]} 
-                fill={`url(#color-${idx})`}
+                stroke={colors[player] || "#fff"} 
+                fill={`url(#color-${player.replace(/\s+/g, '-')})`}
                 strokeWidth={3}
-                dot={{ r: 4, strokeWidth: 2, fill: '#0f172a', stroke: colors[idx % colors.length] }}
-                activeDot={{ r: 7, strokeWidth: 0, fill: colors[idx % colors.length], style: { filter: `drop-shadow(0px 0px 8px ${colors[idx % colors.length]})` } }}
+                dot={{ r: 3, strokeWidth: 1, fill: '#0f172a', stroke: colors[player] || "#fff" }}
+                activeDot={{ r: 6, strokeWidth: 0, fill: colors[player] || "#fff", style: { filter: `drop-shadow(0px 0px 8px ${colors[player] || "#fff"})` } }}
                 connectNulls
               />
             ))}

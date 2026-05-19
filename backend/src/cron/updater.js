@@ -8,7 +8,7 @@ const PLAYERS_TO_TRACK = [
   { riotId: 'cosspeciales1', tagline: 'EUW' },
   { riotId: 'crisus22', tagline: 'EUW' },
   { riotId: 'RGB AGD ADHD', tagline: 'HDR' },
-  { riotId: 'RobertoCatetas', tagline: '123' },
+  { riotId: 'petersqy x', tagline: 'EUW' },
   { riotId: 'Paul Kellerman', tagline: 'scyla' },
   { riotId: 'Mateusz Gotówa', tagline: 'cash' }
 ];

@@ -74,7 +74,7 @@ export default function MatchScoreboard({ matchId }: MatchScoreboardProps) {
           {team.map((p: any, idx: number) => {
             const cs = p.totalMinionsKilled + p.neutralMinionsKilled;
             const damagePercent = maxDamage > 0 ? (p.totalDamageDealtToChampions / maxDamage) * 100 : 0;
-            const isMainPlayer = ["RGB AGD ADHD", "RobertoCatetas", "crisus22", "cosspeciales1", "Paul Kellerman", "Mateusz Gotówa"].includes(p.riotIdGameName);
+            const isMainPlayer = ["RGB AGD ADHD", "petersqy x", "crisus22", "cosspeciales1", "Paul Kellerman", "Mateusz Gotówa"].includes(p.riotIdGameName);
 
             return (
               <div key={idx} className={`flex items-center gap-3 p-2 hover:bg-slate-800/40 transition-colors ${isMainPlayer ? 'bg-slate-800/30' : ''}`}>

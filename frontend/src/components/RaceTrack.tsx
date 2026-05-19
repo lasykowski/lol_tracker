@@ -53,7 +53,7 @@ const MILESTONES = [
 
 const PLAYER_COLORS: Record<string, { gradient: string, dot: string }> = {
   "RGB AGD ADHD": { gradient: "linear-gradient(90deg, rgba(244,63,94,0.9), rgba(251,113,133,0.6))", dot: "#f43f5e" },
-  "RobertoCatetas": { gradient: "linear-gradient(90deg, rgba(14,165,233,0.9), rgba(56,189,248,0.6))", dot: "#0ea5e9" },
+  "petersqy x": { gradient: "linear-gradient(90deg, rgba(14,165,233,0.9), rgba(56,189,248,0.6))", dot: "#0ea5e9" },
   "crisus22": { gradient: "linear-gradient(90deg, rgba(168,85,247,0.9), rgba(196,132,251,0.6))", dot: "#a855f7" },
   "cosspeciales1": { gradient: "linear-gradient(90deg, rgba(16,185,129,0.9), rgba(52,211,153,0.6))", dot: "#10b981" },
   "Paul Kellerman": { gradient: "linear-gradient(90deg, rgba(249,115,22,0.9), rgba(253,186,116,0.6))", dot: "#f97316" },
@@ -62,7 +62,7 @@ const PLAYER_COLORS: Record<string, { gradient: string, dot: string }> = {
 
 const PLAYER_EMOJI: Record<string, string> = {
   "RGB AGD ADHD": "💀",
-  "RobertoCatetas": "🔥",
+  "petersqy x": "🔥",
   "crisus22": "🏳️‍🌈",
   "cosspeciales1": "💣",
   "Paul Kellerman": "🕵️",
@@ -247,7 +247,7 @@ export default function RaceTrack() {
             {(() => {
               // Defined pairs
               const pairDefinitions = [
-                ["RGB AGD ADHD", "RobertoCatetas"],
+                ["RGB AGD ADHD", "petersqy x"],
                 ["crisus22", "cosspeciales1"],
                 ["Mateusz Gotówa", "Paul Kellerman"],
               ];
@@ -372,25 +372,6 @@ export default function RaceTrack() {
                                   : "0 0 4px rgba(239,68,68,0.3)";
                                 const stripeColor = isRemake ? "#9ca3af" : c.win ? "#34d399" : "#ef4444";
 
-                                // LP badge
-                                let lpLabel: string | null = null;
-                                let lpColor = "";
-                                if (c.lpChange !== null && c.lpChange !== undefined) {
-                                  if (isRemake) {
-                                    lpLabel = "±0";
-                                    lpColor = "text-slate-400";
-                                  } else if (c.lpChange > 0) {
-                                    lpLabel = `+${c.lpChange}`;
-                                    lpColor = "text-emerald-400";
-                                  } else if (c.lpChange < 0) {
-                                    lpLabel = `${c.lpChange}`;
-                                    lpColor = "text-red-400";
-                                  } else {
-                                    lpLabel = "±0";
-                                    lpColor = "text-slate-400";
-                                  }
-                                }
-
                                 const title = isRemake
                                   ? `${c.championName} – Remake`
                                   : `${c.championName} – ${c.win ? "Wygrana" : "Przegrana"}`;
@@ -443,12 +424,6 @@ export default function RaceTrack() {
                                       )}
                                     </div>
 
-                                    {/* LP change badge */}
-                                    {lpLabel && (
-                                      <span className={`text-[9px] font-black leading-none ${lpColor}`}>
-                                        {lpLabel}
-                                      </span>
-                                    )}
                                   </div>
                                 );
                               })}

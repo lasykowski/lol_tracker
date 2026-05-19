@@ -79,7 +79,7 @@ router.get('/stats/otp', async (req, res) => {
     const OTP_MAPPING = {
       "RGB AGD ADHD#HDR": { champId: 157, champName: "Yasuo" },
       "crisus22#EUW": { champId: 76, champName: "Nidalee" },
-      "RobertoCatetas#123": { champId: 154, champName: "Zac" },
+      "petersqy x#EUW": { champId: 154, champName: "Zac" },
       "cosspeciales1#EUW": { champId: 246, champName: "Qiyana" },
       "Mateusz Gotówa#cash": { champId: 81, champName: "Ezreal" },
       "Paul Kellerman#scyla": { champId: 141, champName: "Kayn" }
@@ -218,28 +218,31 @@ router.get('/players/history-all', async (req, res) => {
       }
     });
 
-    const now = Date.now();
-    // Start exactly on May 18th, 2026 at midnight
     const startDate = new Date("2026-05-18T00:00:00").getTime();
 
-    // 2-hour intervals
-    const intervalMs = 2 * 60 * 60 * 1000; 
-    const sortedDates = [];
-    for (let t = startDate; t <= now; t += intervalMs) {
-      sortedDates.push(new Date(t).toISOString());
-    }
+    // Collect all unique snapshot timestamps >= startDate
+    const timestampsSet = new Set();
+    players.forEach(p => {
+      p.snapshots.forEach(s => {
+        const t = new Date(s.createdAt).getTime();
+        if (t >= startDate) {
+          timestampsSet.add(t);
+        }
+      });
+    });
 
-    const chartData = sortedDates.map(dateStr => {
+    const sortedTimestamps = Array.from(timestampsSet).sort((a, b) => a - b);
+
+    const chartData = sortedTimestamps.map(timestamp => {
+      const dateStr = new Date(timestamp).toISOString();
       const point = { date: dateStr };
-      const targetTime = new Date(dateStr).getTime();
       
       players.forEach(p => {
         // Find the last snapshot exactly at or before this interval
-        // Linear scan is okay because snapshots are sorted by createdAt
         let lastValid = null;
         for (let i = 0; i < p.snapshots.length; i++) {
           const snapTime = new Date(p.snapshots[i].createdAt).getTime();
-          if (snapTime <= targetTime) {
+          if (snapTime <= timestamp) {
             lastValid = p.snapshots[i];
           } else {
             break; // Since p.snapshots is sorted asc, we can stop early

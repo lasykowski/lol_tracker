@@ -48,7 +48,7 @@ export default function LPChart() {
   const players = Object.keys(data[0] || {}).filter((k) => k !== "date");
   const colors: Record<string, string> = {
     "RGB AGD ADHD": "#f43f5e",
-    "RobertoCatetas": "#0ea5e9",
+    "petersqy x": "#0ea5e9",
     "crisus22": "#a855f7",
     "cosspeciales1": "#10b981",
     "Paul Kellerman": "#f97316",
